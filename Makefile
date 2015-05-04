@@ -6,7 +6,7 @@ LINTER		     	:= eslint
 MOCHA_OPTS	     	:= --recursive --colors -r blanket --reporter mocha-multi
 
 start:
-	node ./index.js
+	node ./mercury.js
 
 install:
 	npm prune
@@ -24,7 +24,8 @@ test-coverage: lint
 		${MOCHA_ARGS} ./tests/
 
 lint: noTodosOrFixmes
-	@ ${LINTER} ./index.js ./tests/
+	@ ${LINTER} ./mercury.js ./tests/\
+				./lib/ ./db/
 noTodosOrFixmes:
 	-@ git grep -n 'TODO\|FIXME' --\
 		`git ls-files | grep -v '^Makefile\|^public/'`\

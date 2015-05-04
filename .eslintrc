@@ -21,6 +21,6 @@
     "no-debugger": 1,
     "wrap-regex": 2,
     "strict": [2, "global"],
-    "no-alert": 0
+    "no-multi-spaces": 0
   }
 }
