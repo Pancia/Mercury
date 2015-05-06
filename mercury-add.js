@@ -2,17 +2,9 @@
 "use strict";
 
 require("colors");
-var program = require("commander");
-
-program
-    .option("--tags <tags>",
-            "Tags to add to the bookmark")
-    .option(" --title <title>",
-            "Title to add to the bookmark")
-    .parse(process.argv);
 
 function addBM(newBM) {
-    require("./lib/add.js")(newBM).spread(function(bm, created) {
+    return require("./lib/add.js")(newBM).spread(function(bm, created) {
         if (!created) {
             return console.warn("mercury: That bookmark already exists:\n".red, bm);
         }
@@ -20,10 +12,29 @@ function addBM(newBM) {
     });
 }
 
-(function main(args) {
-    addBM({
-        url: args[0],
-        tags: program.tags,
-        title: program.title
+function main(opts) {
+    console.log(opts.args);
+    return addBM({
+        url: opts.args[0],
+        tags: opts.tags,
+        title: opts.title
     });
-})(program.args);
+}
+
+var program = require("commander");
+program
+    .option("--tags <tags>",
+            "Tags to add to the bookmark")
+    .option(" --title <title>",
+            "Title to add to the bookmark");
+
+if (require.main === module) {
+    program.parse(process.argv);
+    main(program);
+} else {
+    module.exports = function(args) {
+        // Commander will strip first two args
+        program.parse(["mercury", "add"].concat(args));
+        return main(program);
+    };
+}

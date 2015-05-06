@@ -1,26 +1,35 @@
 #!/usr/bin/env node
 "use strict";
 
-require("colors");
-var prmpt = require("promptly");
+var Promise = require("bluebird");
+var _ = require("lodash");
+var prmpt = Promise.promisifyAll(require("promptly"));
 var program = require("commander");
+require("colors");
 
 program
     .parse(process.argv);
 
 function repl() {
     var choices = ["add", "all", "exit"];
-        prmpt.choose("["+choices+"]", choices, function(err, choice) {
-            if (err) {
-                console.warn("mercury:", err.message.red);
-                return repl();
-            }
-            console.log("choice:", choice);
-            if (choice === "exit") {
-                return null;
-            }
-            repl();
+    prmpt.promptAsync("["+choices+"]?").then(function(input) {
+        if (input === "exit") {
+            return null;
+        }
+
+        var inputs = input.split(" ");
+        var cmd = _.first(inputs);
+        if (!_.contains(choices, cmd)) {
+            console.warn("mercury: invalid choice!");
+            return repl();
+        }
+
+        var args = _.rest(inputs);
+        console.log(args);
+        require("./mercury-"+ cmd +".js")(args).then(function() {
+            return repl();
         });
+    });
 }
 
 (function main() {
